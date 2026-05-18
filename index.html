@@ -137,14 +137,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
     <option value="us">United States</option>
     <option value="us-ca">— California</option>
   </select>
-  <select class="filter-select" id="round-select">
-    <option value="all">All Rounds</option>
-    <option value="preseed">Pre-Seed</option>
-    <option value="seed">Seed</option>
-    <option value="a">Series A</option>
-    <option value="b">Series B</option>
-    <option value="c">Series C+</option>
-  </select>
+  <div class="filter-group" id="round-filters">
+    <button class="fb" data-round="preseed">Pre-Seed</button>
+    <button class="fb" data-round="seed">Seed</button>
+    <button class="fb" data-round="a">Series A</button>
+    <button class="fb" data-round="b">Series B</button>
+    <button class="fb" data-round="c">Series C+</button>
+  </div>
   <span class="count" id="count-label"></span>
 </div>
 
@@ -186,7 +185,7 @@ let favs      = load(KEYS.favs);
 let notes     = loadObj(KEYS.notes);
 let openNotes = load(KEYS.openNotes);
 
-let view='active', tierF='all', regionF='all', roundF='all', query='';
+let view='active', tierF='all', regionF='all', roundSet=new Set(), query='';
 
 // ── View tabs ──
 document.getElementById('tab-active').addEventListener('click', ()=>setView('active'));
@@ -202,7 +201,14 @@ function updateTabClasses(){
 // ── Filter dropdowns ──
 document.getElementById('tier-select').addEventListener('change',e=>{tierF=e.target.value;render();});
 document.getElementById('region-select').addEventListener('change',e=>{regionF=e.target.value;render();});
-document.getElementById('round-select').addEventListener('change',e=>{roundF=e.target.value;render();});
+document.getElementById('round-filters').addEventListener('click',e=>{
+  const btn=e.target.closest('[data-round]');
+  if(!btn)return;
+  const val=btn.dataset.round;
+  roundSet.has(val)?roundSet.delete(val):roundSet.add(val);
+  btn.classList.toggle('on',roundSet.has(val));
+  render();
+});
 document.getElementById('search').addEventListener('input', e=>{ query=e.target.value; render(); });
 
 // ── Event delegation on grid ──
@@ -247,15 +253,15 @@ document.getElementById('grid').addEventListener('input', e=>{
 // ── Helpers ──
 const esc = s => String(s).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 
-const rndMatch = (c,f) => {
-  if(f==='all') return true;
+const rndMatch = (c,rs) => {
+  if(rs.size===0) return true;
   const r = c.round.toLowerCase();
-  if(f==='preseed') return r.includes('pre');
-  if(f==='seed') return (r.includes('seed')&&!r.includes('pre'))||r.includes('safe')||r.includes('convertible')||r.includes('note');
-  if(f==='a') return r==='series a';
-  if(f==='b') return r==='series b';
-  if(f==='c') return !!r.match(/series [c-z]/);
-  return true;
+  if(rs.has('preseed')&&r.includes('pre')) return true;
+  if(rs.has('seed')&&((r.includes('seed')&&!r.includes('pre'))||r.includes('safe')||r.includes('convertible')||r.includes('note'))) return true;
+  if(rs.has('a')&&r==='series a') return true;
+  if(rs.has('b')&&r==='series b') return true;
+  if(rs.has('c')&&!!r.match(/series [c-z]/)) return true;
+  return false;
 };
 
 const icons = {
@@ -337,7 +343,7 @@ function render(){
   const visible = pool.filter(c=>{
     if(tierF!=='all' && String(c.tier)!==tierF) return false;
     if(regionF!=='all'){const t=c.tags||[];const ca=['bc','ontario','quebec','alberta','manitoba','nova-scotia','newfoundland'];if(regionF==='canada'){if(!t.some(x=>ca.includes(x)))return false;}else if(regionF==='us'){if(!t.includes('us'))return false;}else if(!t.includes(regionF))return false;}
-    if(!rndMatch(c,roundF)) return false;
+    if(!rndMatch(c,roundSet)) return false;
     if(q && !(c.name+' '+c.location+' '+c.desc+' '+c.fit+' '+(c.industries||[]).join(' ')).toLowerCase().includes(q)) return false;
     return true;
   });
