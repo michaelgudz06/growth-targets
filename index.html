@@ -76,6 +76,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .tag-ind{background:#fdf0f0;color:#8a4a4a;border:1px solid #f0d8d8}
 
 .card-desc{font-size:12px;color:#7070a0;line-height:1.55}
+.backed-by{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.backed-label{font-size:10px;color:#b0b0c0;flex-shrink:0;font-weight:500}
+.inv-pill{padding:2px 7px;border-radius:5px;font-size:10px;font-weight:500;background:#f0f4ff;color:#3a5fc0;border:1px solid #d0daff;white-space:nowrap}
 .fit-box{font-size:11px;color:#5a7a5a;line-height:1.5;padding:9px 11px;background:#f4f9f4;border-radius:7px;border-left:2px solid #b0d4b0}
 .fit-box strong{color:#2e7d32;font-weight:600}
 
@@ -173,6 +176,46 @@ const ALL = [{"name":"FISPAN","tier":1,"location":"Vancouver, BC","province":"Br
 {"name":"Surge AI","tier":2,"location":"San Francisco, CA","province":"California","city":"San Francisco","tags":["us","us-ca"],"domain":"surgehq.ai","website":"https://surgehq.ai","linkedin":"https://www.linkedin.com/company/surge-ai","jobs":"https://surgehq.ai/careers","round":"Series A","raised":"undisclosed","employees":"11-50","date":"2023","desc":"Surge AI provides premium-quality RLHF and human feedback datasets to top AI labs, using highly-skilled contributors earning $25–$100+/hr on specialized annotation tasks that train models like GPT-4 and Claude.","industries":["Artificial Intelligence (AI)","Data Collection","Machine Learning","RLHF"],"fit":"Works directly with the AI labs that matter. Strategic project leads manage expert annotator communities and enterprise deliverables. High-intensity, high-skill environment — exactly the grinding path that teaches enterprise operations and AI industry sales from the ground up."},
 
 {"name":"Invisible Technologies","tier":2,"location":"San Francisco, CA","province":"California","city":"San Francisco","tags":["us","us-ca"],"domain":"inv.tech","website":"https://www.inv.tech","linkedin":"https://www.linkedin.com/company/invisible-technologies","jobs":"https://www.inv.tech/careers","round":"Series B","raised":"undisclosed","employees":"51-100","date":"2023","desc":"Invisible Technologies combines AI and expert human operators to run complex business processes — data processing, research pipelines, and AI training operations at scale for enterprise tech clients.","industries":["Artificial Intelligence (AI)","Business Process Outsourcing","Data Collection","Operations"],"fit":"Francis Pedraza (2x founder) leads a company doing exactly the strategic operations work you described. Project leads manage client data workflows for enterprise AI companies — a direct crash course in how AI companies buy and consume data services, which maps perfectly to a GTM or sales role next."}];
+
+// Investor data enriched via Fundable API (Pro+)
+const INVESTORS = {
+  "Gumloop":              ["Benchmark Capital","Nexus Venture Partners","First Round Capital","Y Combinator"],
+  "Hubbl Technologies":   ["Salesforce Ventures","Industry Ventures"],
+  "Unblocked":            ["Radical Ventures","B Capital Group","Amplify Partners","First Round Capital"],
+  "FISPAN":               ["Canapi Ventures"],
+  "Slate":                ["N49P","Exit North Ventures"],
+  "Cohere":               ["NVIDIA","Salesforce Ventures","AMD Ventures","BDC Capital"],
+  "Mercor":               ["Felicis Ventures","Benchmark Capital","General Catalyst","Robinhood Ventures"],
+  "David AI":             ["NVIDIA","Meritech Capital Partners","Y Combinator","First Round Capital"],
+  "Datacurve":            ["Chemistry","Y Combinator"],
+  "Mundo AI":             ["Y Combinator"],
+  "Turing":               ["WestBridge Capital","Foundation Capital"],
+  "Weights & Biases":     ["Coatue Management","Insight Partners","Tiger Global"],
+  "Snorkel AI":           ["Lightspeed Venture Partners","Greylock","In-Q-Tel"],
+  "Labelbox":             ["Andreessen Horowitz","B Capital Group","SoftBank"],
+  "Shakudo":              ["Gradient Ventures","Radical Ventures"],
+  "Una Software":         ["Y Combinator","Golden Ventures"],
+  "Chata.ai":             ["Luge Capital","Inovia Capital"],
+  "Cognota":              ["Pender Ventures","Round13 Capital"],
+  "Tailscale":            ["CRV","Accel","Heavybit Industries"],
+  "Waabi":                ["Uber","Radical Ventures","Khosla Ventures"],
+  "Botpress":             ["Inovia Capital"],
+  "Mappedin":             ["BDC Capital","Relay Ventures"],
+  "Conquest Planning":    ["Wealthsimple","iA Financial Group"],
+  "CoLab Software":       ["Radical Ventures","Inovia Capital","OMERS Ventures"],
+  "Augmentt":             ["Luge Capital","Ripple Ventures"],
+  "Feroot":               ["Georgian","Yaletown Partners"],
+  "Brickeye":             ["Inovia Capital","Kensington Capital"],
+  "Chexy":                ["Y Combinator","MaRS IAF"],
+  "Micruity":             ["Portage Ventures","Telus Ventures"],
+  "Beacon Software":      ["Constellation Software"],
+  "FundThrough":          ["NAventures","Salesforce Ventures"],
+  "Novisto":              ["BDC Capital","Cycle Capital"],
+  "Tailscale":            ["CRV","Accel","Heavybit"],
+  "GridBank":             ["Lux Capital"],
+  "VEERUM":               ["Evok Innovations","BDC Capital"],
+  "Nanoprecise Sci Corp": ["BASF Venture Capital","Mitsui & Co."],
+};
 
 const KEYS = { discarded:'discard_v2', favs:'favs_v1', notes:'notes_v1', openNotes:'open_notes_v1' };
 const load = k => new Set(JSON.parse(localStorage.getItem(k)||'[]'));
@@ -318,6 +361,7 @@ function cardHTML(c, isDiscard){
     <span class="tag tag-emp">${esc(c.employees)}</span>
     ${inds}
   </div>
+  ${(()=>{const inv=(INVESTORS[c.name]||[]).slice(0,3);return inv.length?`<div class="backed-by"><span class="backed-label">Backed by</span>${inv.map(i=>`<span class="inv-pill">${esc(i)}</span>`).join('')}</div>`:''})()}
   <p class="card-desc">${esc(c.desc)}</p>
   <div class="fit-box"><strong>Why you fit:</strong> ${esc(c.fit)}</div>
   ${notesSection}
